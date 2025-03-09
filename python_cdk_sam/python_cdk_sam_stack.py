@@ -1,6 +1,7 @@
 from aws_cdk import (
     Stack,
     aws_lambda as _lambda,
+    aws_lambda_python_alpha as python_lambda,
     aws_apigatewayv2 as apigateway,
     aws_apigatewayv2_integrations as integrations,
     aws_ssm as ssm
@@ -12,15 +13,14 @@ class PythonCdkSamStack(Stack):
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-
-
-        hello_world_function = _lambda.Function(
+        hello_world_function = python_lambda.PythonFunction(
             self,
             "HelloWorldFunction",
+            entry="api",
             runtime=_lambda.Runtime.PYTHON_3_9,
-            code=_lambda.Code.from_asset("api"),  # Points to the lambda directory
-            handler="handler.lambda_handler",
-        )
+            index="handler.py",
+            handler="lambda_handler"
+            )
 
         api = apigateway.HttpApi(
             self,

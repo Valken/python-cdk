@@ -1,5 +1,5 @@
 {
-  "app": "pip install --target api/ -r api/requirements.txt && python3 app.py",
+  "app": "python3 app.py",
   "watch": {
     "include": [
       "**"
