@@ -4,11 +4,12 @@ from aws_cdk import (
     aws_lambda_python_alpha as python_lambda,
     aws_apigatewayv2 as apigateway,
     aws_apigatewayv2_integrations as integrations,
-    aws_ssm as ssm
+    aws_ssm as ssm,
+    CfnOutput as Cfnoutput
 )
 from constructs import Construct
 
-class PythonCdkSamStack(Stack):
+class ApiStack(Stack):
 
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
@@ -17,8 +18,8 @@ class PythonCdkSamStack(Stack):
             self,
             "HelloWorldFunction",
             entry="api",
-            runtime=_lambda.Runtime.PYTHON_3_9,
             index="handler.py",
+            runtime=_lambda.Runtime.PYTHON_3_9,
             handler="lambda_handler"
             )
 
@@ -43,5 +44,11 @@ class PythonCdkSamStack(Stack):
             "HelloWorldApiUrl",
             parameter_name="/hello-world/url",
             string_value=api.url,
+        )
+
+        Cfnoutput(
+            self,
+            "Url",
+            value=api.url
         )
 
