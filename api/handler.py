@@ -7,11 +7,13 @@ tracer = Tracer()
 logger = Logger()
 app = APIGatewayHttpResolver()
 
+
 @app.get("/")
 @tracer.capture_method
 def get_todos():
     logger.info("Hello World")
     return {"message": "Hello World"}
+
 
 @app.get("/hello")
 @tracer.capture_method

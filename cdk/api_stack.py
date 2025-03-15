@@ -5,12 +5,12 @@ from aws_cdk import (
     aws_apigatewayv2 as apigateway,
     aws_apigatewayv2_integrations as integrations,
     aws_ssm as ssm,
-    CfnOutput as Cfnoutput
+    CfnOutput as Cfnoutput,
 )
 from constructs import Construct
 
-class ApiStack(Stack):
 
+class ApiStack(Stack):
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
@@ -20,13 +20,10 @@ class ApiStack(Stack):
             entry="api",
             index="handler.py",
             runtime=_lambda.Runtime.PYTHON_3_9,
-            handler="lambda_handler"
-            )
-
-        api = apigateway.HttpApi(
-            self,
-            "Endpoint"
+            handler="lambda_handler",
         )
+
+        api = apigateway.HttpApi(self, "Endpoint")
 
         lambda_integration = integrations.HttpLambdaIntegration(
             "LambdaIntegration",
@@ -46,9 +43,4 @@ class ApiStack(Stack):
             string_value=api.url,
         )
 
-        Cfnoutput(
-            self,
-            "Url",
-            value=api.url
-        )
-
+        Cfnoutput(self, "Url", value=api.url)

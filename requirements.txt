@@ -2,3 +2,4 @@ aws-cdk-lib==2.173.2
 constructs>=10.0.0,<11.0.0
 aws-cdk.aws-lambda-python-alpha
 aws-mfa
+pre-commit==4.1.0
