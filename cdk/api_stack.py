@@ -19,7 +19,7 @@ class ApiStack(Stack):
             "HelloWorldFunction",
             entry="api",
             index="handler.py",
-            runtime=_lambda.Runtime.PYTHON_3_9,
+            runtime=_lambda.Runtime.PYTHON_3_13,
             handler="lambda_handler",
         )
 
