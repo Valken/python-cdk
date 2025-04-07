@@ -23,11 +23,23 @@ class ApiStack(Stack):
             handler="lambda_handler",
         )
 
+        provisioned_concurrency = 0
+        hello_world_function_alias = (
+            None
+            if provisioned_concurrency <= 0
+            else hello_world_function.current_version.add_alias(
+                "live",
+                provisioned_concurrent_executions=2,
+            )
+        )
+
         api = apigateway.HttpApi(self, "Endpoint")
 
         lambda_integration = integrations.HttpLambdaIntegration(
             "LambdaIntegration",
-            handler=hello_world_function,
+            handler=hello_world_function_alias
+            if hello_world_function_alias
+            else hello_world_function,
         )
 
         api.add_routes(
