@@ -17,7 +17,7 @@ class ApiStack(Stack):
         hello_world_function = python_lambda.PythonFunction(
             self,
             "HelloWorldFunction",
-            entry="api",
+            entry="../api",
             index="handler.py",
             runtime=_lambda.Runtime.PYTHON_3_13,
             handler="lambda_handler",
