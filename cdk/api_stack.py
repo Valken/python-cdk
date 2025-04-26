@@ -5,6 +5,7 @@ from aws_cdk import (
     aws_apigatewayv2 as apigateway,
     aws_apigatewayv2_integrations as integrations,
     aws_ssm as ssm,
+    aws_iam as iam,
     CfnOutput as Cfnoutput,
 )
 from constructs import Construct
@@ -21,6 +22,14 @@ class ApiStack(Stack):
             index="handler.py",
             runtime=_lambda.Runtime.PYTHON_3_13,
             handler="lambda_handler",
+        )
+        hello_world_function.role.add_to_policy(
+            iam.PolicyStatement(
+                actions=["ssm:GetParameter", "ssm:GetParametersByPath"],
+                resources=[
+                    f"arn:aws:ssm:{self.region}:{self.account}:parameter/hello-world*"
+                ],
+            )
         )
 
         provisioned_concurrency = 0
@@ -53,6 +62,12 @@ class ApiStack(Stack):
             "HelloWorldApiUrl",
             parameter_name="/hello-world/url",
             string_value=api.url,
+        )
+        ssm.StringParameter(
+            self,
+            "SomthingElse",
+            parameter_name="/hello-world/something",
+            string_value="something",
         )
 
         Cfnoutput(self, "Url", value=api.url)
