@@ -1,5 +1,0 @@
-aws-cdk-lib==2.173.2
-aws-cdk.aws-lambda-python-alpha
-aws-mfa
-constructs>=10.0.0,<11.0.0
-pre-commit==4.1.0

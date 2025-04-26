@@ -1,0 +1,19 @@
+[project]
+name = "python-cdk-sam"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "aws-cdk-aws-lambda-python-alpha>=2.191.0a0",
+    "aws-cdk-lib>=2.191.0",
+    "aws-mfa>=0.0.12",
+    "pre-commit>=4.2.0",
+    "uv-python-lambda>=0.0.7",
+]
+
+[tool.uv.workspace]
+members = ["api"]

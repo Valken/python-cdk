@@ -1,27 +1,62 @@
+from pathlib import Path
+
 from aws_cdk import (
     Stack,
     aws_lambda as _lambda,
-    aws_lambda_python_alpha as python_lambda,
     aws_apigatewayv2 as apigateway,
     aws_apigatewayv2_integrations as integrations,
     aws_ssm as ssm,
     aws_iam as iam,
     CfnOutput as Cfnoutput,
+    Duration,
 )
 from constructs import Construct
+from uv_python_lambda import PythonFunction
+
+root_path = Path(__file__).parent.parent
+print(root_path)
 
 
 class ApiStack(Stack):
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        hello_world_function = python_lambda.PythonFunction(
+        # hello_world_function = (
+        #     PythonFunction(
+        #         self,
+        #         "HelloWorldFunction",
+        #         entry="../api",
+        #         index="handler.py",
+        #         runtime=_lambda.Runtime.PYTHON_3_13,
+        #         handler="lambda_handler",
+        #     )
+        # )
+
+        hello_world_function = PythonFunction(
             self,
             "HelloWorldFunction",
-            entry="../api",
-            index="handler.py",
-            runtime=_lambda.Runtime.PYTHON_3_13,
+            index="api/handler.py",
+            root_dir=str(root_path),
+            workspace_package="api",  # Use a workspace package as the top-level Lambda entry point.
             handler="lambda_handler",
+            runtime=_lambda.Runtime.PYTHON_3_13,
+            architecture=_lambda.Architecture.X86_64,
+            bundling={
+                "asset_excludes": [
+                    ".venv/",
+                    "node_modules/",
+                    "cdk/",
+                    ".git/",
+                    ".idea/",
+                    "dist/",
+                    "*.yaml",
+                    "*.bat",
+                    ".python-version",
+                    ".gitignore",
+                    "*.md",
+                ]
+            },
+            timeout=Duration.seconds(30),
         )
         hello_world_function.role.add_to_policy(
             iam.PolicyStatement(
