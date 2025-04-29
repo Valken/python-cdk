@@ -9,17 +9,63 @@ from aws_cdk import (
     aws_iam as iam,
     CfnOutput as Cfnoutput,
     Duration,
+    ILocalBundling,
+    BundlingOptions,
 )
 from constructs import Construct
 from uv_python_lambda import PythonFunction
+from jsii import implements, member
+import subprocess
 
 root_path = Path(__file__).parent.parent
-print(root_path)
+
+
+@implements(ILocalBundling)
+class MyLocalBundler:
+    @member(jsii_name="tryBundle")
+    def try_bundle(self, output_dir: str, options: BundlingOptions) -> bool:
+        try:
+            # Run local commands to bundle the layer
+            subprocess.run(
+                [
+                    "bash",
+                    "-c",
+                    "cd ../layer && "
+                    "uv export --frozen --no-dev --no-editable -o requirements.txt && "
+                    "uv pip install --no-installer-metadata --no-compile-bytecode --prefix packages -r requirements.txt && ",
+                    f"mkdir {output_dir}/python && cp -r packages/lib {output_dir}/python/",
+                ],
+                check=True,
+            )
+            return True
+        except subprocess.CalledProcessError:
+            return False
 
 
 class ApiStack(Stack):
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
+
+        layer = _lambda.LayerVersion(
+            self,
+            "LambdaLayer",
+            code=_lambda.Code.from_asset(
+                str(root_path / "layer"),
+                exclude=[".venv", ".git", ".idea", "node_modules"],
+                bundling={
+                    "image": _lambda.Runtime.PYTHON_3_13.bundling_image,
+                    # "command": [
+                    #     "bash",
+                    #     "-c",
+                    #     "touch /asset-output/hello.txt && echo 'Hello World' > /asset-output/hello.txt",
+                    #     #self._build_bundle_commands()
+                    #     #"pip install -r requirements.txt -t /asset-output/python && cp -au . /asset-output/python",
+                    # ],
+                    "local": MyLocalBundler(),
+                },
+            ),
+            compatible_runtimes=[_lambda.Runtime.PYTHON_3_13],
+        )
 
         # hello_world_function = (
         #     PythonFunction(
@@ -41,6 +87,7 @@ class ApiStack(Stack):
             handler="lambda_handler",
             runtime=_lambda.Runtime.PYTHON_3_13,
             architecture=_lambda.Architecture.X86_64,
+            layers=[layer],
             bundling={
                 "asset_excludes": [
                     ".venv/",
@@ -106,3 +153,12 @@ class ApiStack(Stack):
         )
 
         Cfnoutput(self, "Url", value=api.url)
+
+    def _build_bundle_commands(self):
+        commands = [
+            "pip install uv",
+            "uv export --frozen --no-dev --no-editable -o requirements.txt",
+            "pip install -r requirements.txt -t /asset-output/python",
+            "cp -au . /asset-output/python",
+        ]
+        return " && ".join(commands)

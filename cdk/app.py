@@ -1,13 +1,8 @@
 #!/usr/bin/env python3
 
-from pathlib import Path
 from aws_cdk import App
 
 from api_stack import ApiStack
-
-print(str(Path(__file__).resolve().parent))
-print(str(Path(__file__).resolve().parent.parent))
-
 
 # sys.path.append(str(Path(__file__).resolve().parent.parent))
 

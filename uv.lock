@@ -5,6 +5,7 @@ requires-python = ">=3.13"
 [manifest]
 members = [
     "api",
+    "layer",
     "python-cdk-sam",
 ]
 
@@ -270,6 +271,17 @@ sdist = { url = "https://files.pythonhosted.org/packages/29/e0/f1edbe7adb75c58ef
 wheels = [
     { url = "https://files.pythonhosted.org/packages/3c/8a/d3a80a0b0ecb2c175eacbe48542695213ef4315b2e6bd62bafd244c06ae0/jsii-1.111.0-py3-none-any.whl", hash = "sha256:3084e31173e73d2eefee678c8ee31aa49428830509043057a421a4c0dde94434", size = 600503 },
 ]
+
+[[package]]
+name = "layer"
+version = "0.1.0"
+source = { virtual = "layer" }
+dependencies = [
+    { name = "aws-xray-sdk" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "aws-xray-sdk", specifier = ">=2.14.0" }]
 
 [[package]]
 name = "nodeenv"

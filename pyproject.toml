@@ -16,4 +16,4 @@ dev = [
 ]
 
 [tool.uv.workspace]
-members = ["api"]
+members = ["api", "layer"]
