@@ -11,6 +11,7 @@ from aws_cdk import (
     Duration,
     ILocalBundling,
     BundlingOptions,
+    DockerImage,
 )
 from constructs import Construct
 from uv_python_lambda import PythonFunction
@@ -46,6 +47,14 @@ class ApiStack(Stack):
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
+        docker_image = DockerImage.from_build(
+            str(root_path / "cdk" / "resources"),
+            # build_args={
+            #     "PYTHON_VERSION": "3.13",
+            #     "LAMBDA_RUNTIME": _lambda.Runtime.PYTHON_3_13.name,
+            # },
+        )
+
         layer = _lambda.LayerVersion(
             self,
             "LambdaLayer",
@@ -53,15 +62,16 @@ class ApiStack(Stack):
                 str(root_path / "layer"),
                 exclude=[".venv", ".git", ".idea", "node_modules"],
                 bundling={
-                    "image": _lambda.Runtime.PYTHON_3_13.bundling_image,
-                    # "command": [
-                    #     "bash",
-                    #     "-c",
-                    #     "touch /asset-output/hello.txt && echo 'Hello World' > /asset-output/hello.txt",
-                    #     #self._build_bundle_commands()
-                    #     #"pip install -r requirements.txt -t /asset-output/python && cp -au . /asset-output/python",
-                    # ],
-                    "local": MyLocalBundler(),
+                    "image": docker_image,  # _lambda.Runtime.PYTHON_3_13.bundling_image,
+                    "command": [
+                        "bash",
+                        "-c",
+                        "rsync -rLv /asset-input/ /asset-output && "
+                        "cd /asset-output && ",
+                        "uv sync",
+                        # "uv export --frozen --no-dev --no-editable -o requirements.txt"
+                    ],
+                    # "local": MyLocalBundler(),
                 },
             ),
             compatible_runtimes=[_lambda.Runtime.PYTHON_3_13],
