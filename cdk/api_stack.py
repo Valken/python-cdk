@@ -62,16 +62,18 @@ class ApiStack(Stack):
                 str(root_path / "layer"),
                 exclude=[".venv", ".git", ".idea", "node_modules"],
                 bundling={
-                    "image": docker_image,  # _lambda.Runtime.PYTHON_3_13.bundling_image,
+                    "image": docker_image,
                     "command": [
                         "bash",
                         "-c",
                         "rsync -rLv /asset-input/ /asset-output && "
-                        "cd /asset-output && ",
-                        "uv sync",
-                        # "uv export --frozen --no-dev --no-editable -o requirements.txt"
+                        "cd /asset-output && "
+                        "uv sync --python-preference=only-system --link-mode=copy && "
+                        "uv export --frozen --no-dev --no-editable -o requirements.txt && "
+                        "uv pip install --reinstall --no-compile-bytecode --prefix packages --link-mode=copy -r requirements.txt && "
+                        "cp -r packages/lib/* /asset-output/python/ && "
+                        "mv *.{py,toml,txt,lock} /asset-output/python/",
                     ],
-                    # "local": MyLocalBundler(),
                 },
             ),
             compatible_runtimes=[_lambda.Runtime.PYTHON_3_13],
