@@ -14,15 +14,11 @@ name = "api"
 version = "0.1.0"
 source = { virtual = "api" }
 dependencies = [
-    { name = "aws-lambda-powertools" },
     { name = "aws-xray-sdk" },
 ]
 
 [package.metadata]
-requires-dist = [
-    { name = "aws-lambda-powertools", specifier = ">=3.11.0" },
-    { name = "aws-xray-sdk", specifier = ">=2.14.0" },
-]
+requires-dist = [{ name = "aws-xray-sdk", specifier = ">=2.14.0" }]
 
 [[package]]
 name = "attrs"
@@ -277,11 +273,15 @@ name = "layer"
 version = "0.1.0"
 source = { virtual = "layer" }
 dependencies = [
+    { name = "aws-lambda-powertools" },
     { name = "aws-xray-sdk" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "aws-xray-sdk", specifier = ">=2.14.0" }]
+requires-dist = [
+    { name = "aws-lambda-powertools", specifier = ">=3.11.0" },
+    { name = "aws-xray-sdk", specifier = ">=2.14.0" },
+]
 
 [[package]]
 name = "nodeenv"

@@ -71,7 +71,8 @@ class ApiStack(Stack):
                         "uv sync --python-preference=only-system --link-mode=copy && "
                         "uv export --frozen --no-dev --no-editable -o requirements.txt && "
                         "uv pip install --reinstall --no-compile-bytecode --prefix packages --link-mode=copy -r requirements.txt && "
-                        "cp -r packages/lib/* /asset-output/python/ && "
+                        "cp -r packages/lib/*/site-packages /asset-output/python/ && "
+                        "rm -rf packages .venv && "
                         "mv *.{py,toml,txt,lock} /asset-output/python/",
                     ],
                 },
