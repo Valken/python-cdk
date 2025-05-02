@@ -1,4 +1,5 @@
-ARG IMAGE=public.ecr.aws/sam/build-python3.13
+ARG PYTHON_VERSION
+ARG IMAGE=public.ecr.aws/sam/build-python${PYTHON_VERSION}
 FROM $IMAGE
 
 ARG PIP_INDEX_URL
