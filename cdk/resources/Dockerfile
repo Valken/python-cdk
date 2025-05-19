@@ -1,6 +1,6 @@
 ARG PYTHON_VERSION
 ARG IMAGE=public.ecr.aws/sam/build-python${PYTHON_VERSION}
-FROM $IMAGE
+FROM --platform=linux/amd64 $IMAGE
 
 ARG PIP_INDEX_URL
 ARG PIP_EXTRA_INDEX_URL

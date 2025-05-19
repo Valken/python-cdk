@@ -60,6 +60,9 @@ class ApiStack(Stack):
             runtime=_lambda.Runtime.PYTHON_3_13,
             architecture=_lambda.Architecture.X86_64,
             layers=[layer],
+            environment={
+                "PYTHONPATH": "/var/runtime:/var/task:var/task/api:/opt/python"
+            },
             bundling={
                 "asset_excludes": [
                     ".venv/",
@@ -68,6 +71,8 @@ class ApiStack(Stack):
                     ".git/",
                     ".idea/",
                     "dist/",
+                    "layer/",
+                    "tests/",
                     "*.yaml",
                     "*.bat",
                     ".python-version",
@@ -108,6 +113,12 @@ class ApiStack(Stack):
         api.add_routes(
             path="/{proxy+}",
             methods=[apigateway.HttpMethod.ANY],
+            integration=lambda_integration,
+        )
+
+        api.add_routes(
+            path="/hello",
+            methods=[apigateway.HttpMethod.GET],
             integration=lambda_integration,
         )
 
