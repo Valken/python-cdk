@@ -23,7 +23,7 @@ class ApiStack(Stack):
 
         docker_image = DockerImage.from_build(
             str(root_path / "cdk" / "resources"),
-            build_args={"PYTHON_VERSION": "3.13"},
+            build_args={"PYTHON_VERSION": "3.13", "PLATFORM": "linux/amd64"},
         )
 
         layer = _lambda.LayerVersion(
@@ -60,9 +60,9 @@ class ApiStack(Stack):
             runtime=_lambda.Runtime.PYTHON_3_13,
             architecture=_lambda.Architecture.X86_64,
             layers=[layer],
-            environment={
-                "PYTHONPATH": "/var/runtime:/var/task:var/task/api:/opt/python"
-            },
+            # environment={
+            #     "PYTHONPATH": "/var/runtime:/var/task:var/task/api:/opt/python"
+            # },
             bundling={
                 "asset_excludes": [
                     ".venv/",
