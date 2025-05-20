@@ -12,6 +12,7 @@ dev = [
     "aws-cdk-lib>=2.191.0",
     "aws-mfa>=0.0.12",
     "pre-commit>=4.2.0",
+    "pytest>=8.3.5",
     "uv-python-lambda>=0.0.7",
 ]
 
