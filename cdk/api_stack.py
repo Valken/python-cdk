@@ -105,9 +105,11 @@ class ApiStack(Stack):
 
         lambda_integration = integrations.HttpLambdaIntegration(
             "LambdaIntegration",
-            handler=hello_world_function_alias
-            if hello_world_function_alias
-            else hello_world_function,
+            handler=(
+                hello_world_function_alias
+                if hello_world_function_alias
+                else hello_world_function
+            ),
         )
 
         api.add_routes(
