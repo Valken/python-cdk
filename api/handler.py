@@ -3,6 +3,7 @@ from typing import Any
 
 from aws_lambda_powertools import Logger, Tracer
 from aws_lambda_powertools.event_handler import APIGatewayHttpResolver
+from aws_lambda_powertools.event_handler.router import Router
 from aws_lambda_powertools.logging import correlation_paths
 from aws_lambda_powertools.utilities.typing import LambdaContext
 from aws_lambda_powertools.utilities import parameters
@@ -13,17 +14,18 @@ from api.models.model import Model
 tracer = Tracer()
 logger = Logger()
 app = APIGatewayHttpResolver(enable_validation=True)
+router = Router()
 ssm_provider = parameters.SSMProvider()
 
 
-@app.get("/")
+@router.get("/")
 @tracer.capture_method
 def get_todos():
     logger.info("Hello World")
     return {"message": "Hello World"}
 
 
-@app.get("/hello")
+@router.get("/hello")
 @tracer.capture_method
 def get_threedos():
     something_param: Any = ssm_provider.get("/hello-world/something")
@@ -31,11 +33,14 @@ def get_threedos():
     return {"hello": something_param}
 
 
-@app.post("/pets")
+@router.post("/pets")
 @tracer.capture_method
 def post_pets(model: Model):
     logger.info(model)
     return {"message": "Hello World"}
+
+
+app.include_router(router)
 
 
 # You can continue to use other utilities just as before
