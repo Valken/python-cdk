@@ -9,10 +9,11 @@ from aws_cdk import (
     aws_iam as iam,
     CfnOutput as Cfnoutput,
     Duration,
-    DockerImage,
 )
 from constructs import Construct
 from uv_python_lambda import PythonFunction
+
+from uv_python_lambda_layer import UVPythonLambdaLayer
 
 root_path = Path(__file__).parent.parent
 
@@ -21,33 +22,10 @@ class ApiStack(Stack):
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        docker_image = DockerImage.from_build(
-            str(root_path / "cdk" / "resources"),
-            build_args={"PYTHON_VERSION": "3.13", "PLATFORM": "linux/amd64"},
-        )
-
-        layer = _lambda.LayerVersion(
+        uv_layer = UVPythonLambdaLayer(
             self,
-            "LambdaLayer",
-            code=_lambda.Code.from_asset(
-                str(root_path / "layer"),
-                bundling={
-                    "image": docker_image,
-                    "command": [
-                        "bash",
-                        "-c",
-                        "rsync -rLv /asset-input/ /asset-output && "
-                        "cd /asset-output && "
-                        "uv sync --python-preference=only-system --link-mode=copy && "
-                        "uv export --frozen --no-dev --no-editable -o requirements.txt && "
-                        "uv pip install --reinstall --no-compile-bytecode --prefix packages --link-mode=copy -r requirements.txt && "
-                        "cp -r packages/lib/*/site-packages /asset-output/python/ && "
-                        "rm -rf packages .venv && "
-                        "mv *.{py,toml,txt,lock} /asset-output/python/",
-                    ],
-                },
-            ),
-            compatible_runtimes=[_lambda.Runtime.PYTHON_3_13],
+            "UVPythonLambdaLayerConstruct",
+            root_path=root_path,
         )
 
         hello_world_function = PythonFunction(
@@ -59,7 +37,7 @@ class ApiStack(Stack):
             handler="lambda_handler",
             runtime=_lambda.Runtime.PYTHON_3_13,
             architecture=_lambda.Architecture.X86_64,
-            layers=[layer],
+            layers=[uv_layer.layer],
             # environment={
             #     "PYTHONPATH": "/var/runtime:/var/task:var/task/api:/opt/python"
             # },

@@ -1,5 +1,6 @@
-from ..handler import get_todos, get_threedos, post_pets
-from ..models.model import Model
+from ..handler import get_todos
+from ..routes import get_threedos, post_pets
+from ..schemas import Model
 
 
 def test_get_todos():
