@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import boto3
 from aws_cdk import (
     Stack,
     aws_lambda as _lambda,
@@ -9,6 +10,7 @@ from aws_cdk import (
     aws_iam as iam,
     CfnOutput as Cfnoutput,
     Duration,
+    aws_dynamodb as dynamodb,
 )
 from constructs import Construct
 from uv_python_lambda import PythonFunction
@@ -28,6 +30,13 @@ class ApiStack(Stack):
             root_path=root_path,
         )
 
+        ssm_client = boto3.client("ssm", region_name="eu-west-1")
+        response = ssm_client.get_parameter(
+            Name="/somethingsomething/api/blog-api-dev/blogtable",
+            WithDecryption=True,  # Set to True if the parameter is encrypted
+        )
+        table_name = response["Parameter"]["Value"]
+
         hello_world_function = PythonFunction(
             self,
             "HelloWorldFunction",
@@ -38,9 +47,10 @@ class ApiStack(Stack):
             runtime=_lambda.Runtime.PYTHON_3_13,
             architecture=_lambda.Architecture.X86_64,
             layers=[uv_layer.layer],
-            # environment={
-            #     "PYTHONPATH": "/var/runtime:/var/task:var/task/api:/opt/python"
-            # },
+            environment={
+                # "PYTHONPATH": "/var/runtime:/var/task:var/task/api:/opt/python"
+                "TABLE_NAME": table_name,
+            },
             bundling={
                 "asset_excludes": [
                     ".venv/",
@@ -68,6 +78,12 @@ class ApiStack(Stack):
                 ],
             )
         )
+        table = dynamodb.Table.from_table_name(
+            self,
+            "Table",
+            table_name=table_name,
+        )
+        table.grant_read_data(hello_world_function)
 
         provisioned_concurrency = 0
         hello_world_function_alias = (

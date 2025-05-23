@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Literal
 
 from pydantic import BaseModel, Field
@@ -23,3 +24,9 @@ class Lizard(BaseModel):
 class Model(BaseModel):
     pet: Cat | Dog | Lizard = Field(discriminator="pet_type")
     n: int
+
+
+class Post(BaseModel):
+    topic: str | None = Field(alias="PkTopic", default=None)
+    content: str = Field(alias="Content")
+    post_time: datetime = Field(alias="Sk")
