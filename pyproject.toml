@@ -18,3 +18,10 @@ dev = [
 
 [tool.uv.workspace]
 members = ["api", "layer"]
+
+[tool.pytest.ini_options]
+addopts = "-ra -q  --ignore cdk --ignore .venv"
+#testpaths = [
+#    "tests",
+#    "api/tests",
+#]
