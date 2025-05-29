@@ -38,27 +38,20 @@ def query_posts_by_date_range(from_date, to_date):
             ExpressionAttributeValues={
                 ":pk": {"S": partition_key},
             },
+            ScanIndexForward=False,
         )
-        logger.info(f"Response from DynamoDB: {response}")
-        posts.extend([Post(**dynamo_to_python(item)) for item in response["Items"]])
+        posts.extend([dynamo_to_python(item) for item in response["Items"]])
     return posts
 
 
 @app.get("/posts")
 def get_posts():
-    # items = dynamodb.scan(
-    #     TableName=table_name,
-    #     FilterExpression="begins_with(Pk, :pk_begin)",
-    #     ExpressionAttributeValues={
-    #         ":pk_begin": {"S": "Post#"},
-    #     },
-    # )["Items"]
-    to_date = datetime.now()
-    from_date = to_date - relativedelta(months=6)
+    from_date = datetime.now()
+    to_date = from_date - relativedelta(months=6)
     logger.info(f"Querying posts from {from_date} to {to_date}")
     queried_posts = query_posts_by_date_range(from_date, to_date)
     logger.info(f"Queried {len(queried_posts)} posts")
-    return [Post(**item) for item in queried_posts]
+    return [Post(**item, by_alias=True) for item in queried_posts]
 
 
 @logger.inject_lambda_context(correlation_id_path=correlation_paths.API_GATEWAY_HTTP)
