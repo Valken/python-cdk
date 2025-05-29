@@ -51,6 +51,7 @@ class ApiStack(Stack):
             environment={
                 # "PYTHONPATH": "/var/runtime:/var/task:var/task/api:/opt/python"
                 "TABLE_NAME": table_name,
+                "POWERTOOLS_SERVICE_NAME": "hello-world-api",
             },
             bundling={"asset_excludes": ["layer/", *default_assets_excludes]},
             timeout=Duration.seconds(30),
