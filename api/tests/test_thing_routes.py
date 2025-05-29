@@ -1,17 +1,11 @@
-from ..handler import get_todos
-from ..routes import get_threedos, post_pets
+from ..thing_routes import get_threedos, post_pets
 from ..schemas import Model
-
-
-def test_get_todos():
-    result = get_todos()
-    assert result == {"message": "Hello World"}
 
 
 def test_get_threedos():
     from unittest.mock import patch
 
-    with patch("api.routes.ssm_provider.get") as mock_get:
+    with patch("api.thing_routes.ssm_provider.get") as mock_get:
         mock_get.return_value = "something"
         result = get_threedos()
         assert result == {"hello": "something"}

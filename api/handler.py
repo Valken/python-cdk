@@ -1,57 +1,14 @@
-import os
-
 from aws_lambda_powertools.event_handler import APIGatewayHttpResolver
 from aws_lambda_powertools.logging import correlation_paths
 from aws_lambda_powertools.utilities.typing import LambdaContext
-from boto3 import client
-from datetime import datetime
-from dateutil.relativedelta import relativedelta
 
-
-from api.shared import logger, tracer, dynamo_to_python
-from api.routes import router
-from api.schemas import Post
-from api.partition_generators import get_year_month_range
+from api.shared import logger, tracer
+from api.thing_routes import router as thing_router
+from api.post_routes import router as post_router
 
 app = APIGatewayHttpResolver(enable_validation=True)
-app.include_router(router)
-
-dynamodb = client("dynamodb", region_name="eu-west-1")
-table_name = os.environ.get("TABLE_NAME")
-
-
-@app.get("/")
-@tracer.capture_method
-def get_todos():
-    logger.info("Hello World")
-    return {"message": "Hello World"}
-
-
-def query_posts_by_date_range(from_date, to_date):
-    posts = []
-    for year_month in get_year_month_range(from_date, to_date):
-        partition_key = f"Post#{year_month}"
-        logger.info(f"Querying posts for partition key: {partition_key}")
-        response = dynamodb.query(
-            TableName=table_name,
-            KeyConditionExpression="Pk = :pk",
-            ExpressionAttributeValues={
-                ":pk": {"S": partition_key},
-            },
-            ScanIndexForward=False,
-        )
-        posts.extend([dynamo_to_python(item) for item in response["Items"]])
-    return posts
-
-
-@app.get("/posts")
-def get_posts():
-    from_date = datetime.now()
-    to_date = from_date - relativedelta(months=6)
-    logger.info(f"Querying posts from {from_date} to {to_date}")
-    queried_posts = query_posts_by_date_range(from_date, to_date)
-    logger.info(f"Queried {len(queried_posts)} posts")
-    return [Post(**item, by_alias=True) for item in queried_posts]
+app.include_router(thing_router)
+app.include_router(post_router)
 
 
 @logger.inject_lambda_context(correlation_id_path=correlation_paths.API_GATEWAY_HTTP)

@@ -1,5 +1,5 @@
 from datetime import datetime
-from ..handler import get_year_month_range
+from ..post_routes import get_year_month_range
 
 
 def test_get_year_month_range():

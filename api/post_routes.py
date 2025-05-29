@@ -1,0 +1,42 @@
+import os
+from datetime import datetime
+
+from boto3 import client
+from dateutil.relativedelta import relativedelta
+from aws_lambda_powertools.event_handler.router import Router
+
+from api.partition_generators import get_year_month_range
+from api.schemas import Post
+from api.shared import logger, dynamo_to_python
+
+dynamodb = client("dynamodb", region_name="eu-west-1")
+table_name = os.environ.get("TABLE_NAME")
+
+router = Router()
+
+
+def query_posts_by_date_range(from_date, to_date):
+    posts = []
+    for year_month in get_year_month_range(from_date, to_date):
+        partition_key = f"Post#{year_month}"
+        logger.info(f"Querying posts for partition key: {partition_key}")
+        response = dynamodb.query(
+            TableName=table_name,
+            KeyConditionExpression="Pk = :pk",
+            ExpressionAttributeValues={
+                ":pk": {"S": partition_key},
+            },
+            ScanIndexForward=False,
+        )
+        posts.extend([dynamo_to_python(item) for item in response["Items"]])
+    return posts
+
+
+@router.get("/posts")
+def get_posts():
+    from_date = datetime.now()
+    to_date = from_date - relativedelta(months=6)
+    logger.info(f"Querying posts from {from_date} to {to_date}")
+    queried_posts = query_posts_by_date_range(from_date, to_date)
+    logger.info(f"Queried {len(queried_posts)} posts")
+    return [Post(**item, by_alias=True) for item in queried_posts]
