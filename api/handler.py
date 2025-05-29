@@ -2,9 +2,9 @@ from aws_lambda_powertools.event_handler import APIGatewayHttpResolver
 from aws_lambda_powertools.logging import correlation_paths
 from aws_lambda_powertools.utilities.typing import LambdaContext
 
+from api.post_routes import router as post_router
 from api.shared import logger, tracer
 from api.thing_routes import router as thing_router
-from api.post_routes import router as post_router
 
 app = APIGatewayHttpResolver(enable_validation=True)
 app.include_router(thing_router)

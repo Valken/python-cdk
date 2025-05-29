@@ -1,6 +1,7 @@
 from typing import Any
-from aws_lambda_powertools.utilities import parameters
+
 from aws_lambda_powertools.event_handler.router import Router
+from aws_lambda_powertools.utilities import parameters
 
 from api.schemas import Model
 from api.shared import logger, tracer

@@ -18,6 +18,9 @@ repos:
       args: [ --fix ]
     # Run the formatter.
     - id: ruff-format
+    - id: ruff
+      args: [ "check", "--select", "I", "--fix" ]
+      files: "^api/"
 -   repo: https://github.com/psf/black
     rev: 25.1.0
     hooks:

@@ -1,13 +1,13 @@
 import os
 from datetime import datetime
 
+from aws_lambda_powertools.event_handler.router import Router
 from boto3 import client
 from dateutil.relativedelta import relativedelta
-from aws_lambda_powertools.event_handler.router import Router
 
 from api.partition_generators import get_year_month_range
 from api.schemas import Post
-from api.shared import logger, dynamo_to_python
+from api.shared import dynamo_to_python, logger
 
 dynamodb = client("dynamodb", region_name="eu-west-1")
 table_name = os.environ.get("TABLE_NAME")

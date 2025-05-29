@@ -1,5 +1,5 @@
-from ..thing_routes import get_threedos, post_pets
 from ..schemas import Model
+from ..thing_routes import get_threedos, post_pets
 
 
 def test_get_threedos():
