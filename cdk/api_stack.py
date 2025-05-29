@@ -15,6 +15,7 @@ from aws_cdk import (
 from constructs import Construct
 from uv_python_lambda import PythonFunction
 
+from config import default_assets_excludes
 from uv_python_lambda_layer import UVPythonLambdaLayer
 
 root_path = Path(__file__).parent.parent
@@ -51,30 +52,15 @@ class ApiStack(Stack):
                 # "PYTHONPATH": "/var/runtime:/var/task:var/task/api:/opt/python"
                 "TABLE_NAME": table_name,
             },
-            bundling={
-                "asset_excludes": [
-                    ".venv/",
-                    "node_modules/",
-                    "cdk/",
-                    ".git/",
-                    ".idea/",
-                    "dist/",
-                    "layer/",
-                    "tests/",
-                    "*.yaml",
-                    "*.bat",
-                    ".python-version",
-                    ".gitignore",
-                    "*.md",
-                ]
-            },
+            bundling={"asset_excludes": ["layer/", *default_assets_excludes]},
             timeout=Duration.seconds(30),
         )
         hello_world_function.role.add_to_policy(
             iam.PolicyStatement(
                 actions=["ssm:GetParameter", "ssm:GetParametersByPath"],
                 resources=[
-                    f"arn:aws:ssm:{self.region}:{self.account}:parameter/hello-world*"
+                    f"arn:aws:ssm:{self.region}:{self.account}:parameter/hello-world*",
+                    f"arn:aws:ssm:{self.region}:{self.account}:parameter/somethingsomething/api/blog-api-dev/blogtable",
                 ],
             )
         )

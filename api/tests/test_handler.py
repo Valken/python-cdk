@@ -9,11 +9,15 @@ def test_get_todos():
 
 
 def test_get_threedos():
-    result = get_threedos()
-    assert result == {"hello": "something"}
+    from unittest.mock import patch
+
+    with patch("api.routes.ssm_provider.get") as mock_get:
+        mock_get.return_value = "something"
+        result = get_threedos()
+        assert result == {"hello": "something"}
 
 
 def test_post_pets():
     model = Model(pet={"pet_type": "cat", "meows": 3}, n=5)
     result = post_pets(model)
-    assert result == {"message": "Hello World"}
+    assert result == {"message": model}

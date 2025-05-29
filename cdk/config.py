@@ -1,0 +1,16 @@
+default_assets_excludes = [
+    ".venv/",
+    "node_modules/",
+    "cdk/",
+    ".git/",
+    ".idea/",
+    "dist/",
+    "tests/",
+    "*.yaml",
+    "*.bat",
+    ".python-version",
+    ".gitignore",
+    "*.md",
+    # "pyproject.toml",
+    # "uv.lock",
+]
