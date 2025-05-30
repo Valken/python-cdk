@@ -3,7 +3,7 @@ from datetime import datetime
 from ..post_routes import get_year_month_range
 
 
-def test_get_year_month_range():
+def test_get_year_month_range() -> None:
     # Define test input
     from_date = datetime(2025, 6, 1)
     to_date = datetime(2025, 1, 1)

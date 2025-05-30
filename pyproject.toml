@@ -11,6 +11,7 @@ dev = [
     "aws-cdk-aws-lambda-python-alpha>=2.191.0a0",
     "aws-cdk-lib>=2.191.0",
     "aws-mfa>=0.0.12",
+    "mypy>=1.16.0",
     "pre-commit>=4.2.0",
     "pytest>=8.3.5",
     "uv-python-lambda>=0.0.7",
@@ -25,3 +26,13 @@ addopts = "-ra -q --ignore cdk/cdk.out --ignore .venv"
 #    "tests",
 #    "api/tests",
 #]
+
+[tool.mypy]
+files = [
+    "api",
+#    "layer",
+]
+strict = true
+disable_error_code = [
+    "attr-defined"
+]

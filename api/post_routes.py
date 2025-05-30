@@ -1,5 +1,6 @@
 import os
 from datetime import datetime
+from typing import List
 
 from aws_lambda_powertools.event_handler.router import Router
 from boto3 import client
@@ -15,7 +16,7 @@ table_name = os.environ.get("TABLE_NAME")
 router = Router()
 
 
-def query_posts_by_date_range(from_date, to_date):
+def query_posts_by_date_range(from_date: datetime, to_date: datetime) -> List[dict]:
     posts = []
     for year_month in get_year_month_range(from_date, to_date):
         partition_key = f"Post#{year_month}"
@@ -33,10 +34,10 @@ def query_posts_by_date_range(from_date, to_date):
 
 
 @router.get("/posts")
-def get_posts():
+def get_posts() -> List[Post]:
     from_date = datetime.now()
     to_date = from_date - relativedelta(months=6)
     logger.info(f"Querying posts from {from_date} to {to_date}")
     queried_posts = query_posts_by_date_range(from_date, to_date)
     logger.info(f"Queried {len(queried_posts)} posts")
-    return [Post(**item, by_alias=True) for item in queried_posts]
+    return [Post(**item) for item in queried_posts]

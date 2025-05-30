@@ -12,7 +12,7 @@ ssm_provider = parameters.SSMProvider()
 
 @router.get("/hello")
 @tracer.capture_method
-def get_threedos():
+def get_threedos() -> dict[str, Any]:
     something_param: Any = ssm_provider.get("/hello-world/something")
     logger.info("Fetched parameter: %s", something_param)
     return {"hello": something_param}
@@ -20,6 +20,6 @@ def get_threedos():
 
 @router.post("/pets")
 @tracer.capture_method
-def post_pets(model: Model):
+def post_pets(model: Model) -> dict[str, Model]:
     logger.info(model)
     return {"message": model}

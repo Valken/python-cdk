@@ -2,7 +2,7 @@ from ..schemas import Model
 from ..thing_routes import get_threedos, post_pets
 
 
-def test_get_threedos():
+def test_get_threedos() -> None:
     from unittest.mock import patch
 
     with patch("api.thing_routes.ssm_provider.get") as mock_get:
@@ -11,7 +11,7 @@ def test_get_threedos():
         assert result == {"hello": "something"}
 
 
-def test_post_pets():
+def test_post_pets() -> None:
     model = Model(pet={"pet_type": "cat", "meows": 3}, n=5)
     result = post_pets(model)
     assert result == {"message": model}
