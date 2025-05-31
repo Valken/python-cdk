@@ -1,7 +1,8 @@
 import os
 from datetime import datetime
-from typing import List
+from typing import Annotated, List
 
+from aws_lambda_powertools.event_handler.openapi.params import Query
 from aws_lambda_powertools.event_handler.router import Router
 from boto3 import client
 from dateutil.relativedelta import relativedelta
@@ -34,9 +35,11 @@ def query_posts_by_date_range(from_date: datetime, to_date: datetime) -> List[di
 
 
 @router.get("/posts")
-def get_posts() -> List[Post]:
-    from_date = datetime.now()
-    to_date = from_date - relativedelta(months=6)
+def get_posts(
+    # I can't seem to get using a model for query parameters to work like you can in FastAPI?
+    from_date: Annotated[datetime, Query()] = datetime.now(),
+    to_date: Annotated[datetime, Query()] = datetime.now() - relativedelta(months=6),
+) -> List[Post]:
     logger.info(f"Querying posts from {from_date} to {to_date}")
     queried_posts = query_posts_by_date_range(from_date, to_date)
     logger.info(f"Queried {len(queried_posts)} posts")
