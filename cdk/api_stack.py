@@ -12,6 +12,7 @@ from aws_cdk import (
     Duration,
     aws_dynamodb as dynamodb,
 )
+from aws_cdk.aws_lambda import Tracing
 from constructs import Construct
 from uv_python_lambda import PythonFunction
 
@@ -55,6 +56,8 @@ class ApiStack(Stack):
             },
             bundling={"asset_excludes": ["layer/", *default_assets_excludes]},
             timeout=Duration.seconds(30),
+            logging_format=_lambda.LoggingFormat.JSON,
+            tracing=Tracing.ACTIVE,
         )
         hello_world_function.role.add_to_policy(
             iam.PolicyStatement(
@@ -63,6 +66,12 @@ class ApiStack(Stack):
                     f"arn:aws:ssm:{self.region}:{self.account}:parameter/hello-world*",
                     f"arn:aws:ssm:{self.region}:{self.account}:parameter/somethingsomething/api/blog-api-dev/blogtable",
                 ],
+            )
+        )
+        hello_world_function.role.add_to_policy(
+            iam.PolicyStatement(
+                actions=["xray:PutTraceSegments", "xray:PutTelemetryRecords"],
+                resources=["*"],
             )
         )
         table = dynamodb.Table.from_table_name(
