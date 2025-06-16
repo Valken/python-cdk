@@ -14,10 +14,7 @@ from aws_cdk import (
 )
 from aws_cdk.aws_lambda import Tracing
 from constructs import Construct
-from uv_python_lambda import PythonFunction
 
-from config import default_assets_excludes
-from uv_python_lambda_layer import UVPythonLambdaLayer
 
 root_path = Path(__file__).parent.parent
 
@@ -26,12 +23,6 @@ class ApiStack(Stack):
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        uv_layer = UVPythonLambdaLayer(
-            self,
-            "UVPythonLambdaLayerConstruct",
-            root_path=root_path,
-        )
-
         ssm_client = boto3.client("ssm", region_name="eu-west-1")
         response = ssm_client.get_parameter(
             Name="/somethingsomething/api/blog-api-dev/blogtable",
@@ -39,26 +30,21 @@ class ApiStack(Stack):
         )
         table_name = response["Parameter"]["Value"]
 
-        hello_world_function = PythonFunction(
+        hello_world_function = _lambda.Function(
             self,
             "HelloWorldFunction",
-            index="api/handler.py",
-            root_dir=str(root_path),
-            workspace_package="api",  # Use a workspace package as the top-level Lambda entry point.
-            handler="lambda_handler",
-            runtime=_lambda.Runtime.PYTHON_3_13,
-            architecture=_lambda.Architecture.X86_64,
-            layers=[uv_layer.layer],
+            code=_lambda.Code.from_asset_image(str(root_path)),
+            handler=_lambda.Handler.FROM_IMAGE,
+            runtime=_lambda.Runtime.FROM_IMAGE,
             environment={
-                # "PYTHONPATH": "/var/runtime:/var/task:var/task/api:/opt/python"
                 "TABLE_NAME": table_name,
                 "POWERTOOLS_SERVICE_NAME": "hello-world-api",
             },
-            bundling={"asset_excludes": ["layer/", *default_assets_excludes]},
             timeout=Duration.seconds(30),
-            logging_format=_lambda.LoggingFormat.JSON,
             tracing=Tracing.ACTIVE,
+            logging_format=_lambda.LoggingFormat.JSON,
         )
+
         hello_world_function.role.add_to_policy(
             iam.PolicyStatement(
                 actions=["ssm:GetParameter", "ssm:GetParametersByPath"],
