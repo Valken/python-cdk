@@ -15,3 +15,8 @@ app.include_router(post_router)
 @tracer.capture_lambda_handler
 def lambda_handler(event: dict, context: LambdaContext) -> dict:
     return app.resolve(event, context)
+
+
+# def another_handler(event: dict, context: LambdaContext) -> dict:
+#     logger.info("Another handler invoked")
+#     return {"statusCode": 200, "body": "This is another handler response"}

@@ -35,7 +35,10 @@ class ApiStack(Stack):
             self,
             "HelloWorldFunction",
             code=_lambda.Code.from_asset_image(
-                str(root_path), platform=Platform.LINUX_AMD64
+                str(root_path),
+                file="api/Dockerfile",
+                platform=Platform.LINUX_AMD64,
+                # cmd=["api.handler.another_handler"],
             ),
             handler=_lambda.Handler.FROM_IMAGE,
             runtime=_lambda.Runtime.FROM_IMAGE,
@@ -46,7 +49,7 @@ class ApiStack(Stack):
             timeout=Duration.seconds(30),
             tracing=Tracing.ACTIVE,
             logging_format=_lambda.LoggingFormat.JSON,
-            memory_size=1024,
+            memory_size=256,  # 1024,
         )
 
         hello_world_function.role.add_to_policy(
