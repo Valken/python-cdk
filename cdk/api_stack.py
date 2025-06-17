@@ -12,6 +12,7 @@ from aws_cdk import (
     Duration,
     aws_dynamodb as dynamodb,
 )
+from aws_cdk.aws_ecr_assets import Platform
 from aws_cdk.aws_lambda import Tracing
 from constructs import Construct
 
@@ -33,7 +34,9 @@ class ApiStack(Stack):
         hello_world_function = _lambda.Function(
             self,
             "HelloWorldFunction",
-            code=_lambda.Code.from_asset_image(str(root_path)),
+            code=_lambda.Code.from_asset_image(
+                str(root_path), platform=Platform.LINUX_AMD64
+            ),
             handler=_lambda.Handler.FROM_IMAGE,
             runtime=_lambda.Runtime.FROM_IMAGE,
             environment={
@@ -43,6 +46,7 @@ class ApiStack(Stack):
             timeout=Duration.seconds(30),
             tracing=Tracing.ACTIVE,
             logging_format=_lambda.LoggingFormat.JSON,
+            memory_size=1024,
         )
 
         hello_world_function.role.add_to_policy(
