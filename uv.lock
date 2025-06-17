@@ -22,6 +22,26 @@ wheels = [
 name = "api"
 version = "0.1.0"
 source = { virtual = "api" }
+dependencies = [
+    { name = "aws-lambda-powertools", extra = ["parser"] },
+    { name = "aws-xray-sdk" },
+    { name = "boto3" },
+    { name = "boto3-stubs-lite", extra = ["dynamodb"] },
+    { name = "pydantic" },
+    { name = "pydantic-core" },
+    { name = "types-boto3" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "aws-lambda-powertools", extras = ["parser"], specifier = ">=3.11.0" },
+    { name = "aws-xray-sdk", specifier = ">=2.14.0" },
+    { name = "boto3", specifier = ">=1.38.2" },
+    { name = "boto3-stubs-lite", extras = ["dynamodb"], specifier = ">=1.38.36" },
+    { name = "pydantic", specifier = ">=2.11.4" },
+    { name = "pydantic-core", specifier = ">=2.33.2" },
+    { name = "types-boto3", specifier = ">=1.38.22" },
+]
 
 [[package]]
 name = "attrs"
@@ -328,26 +348,6 @@ wheels = [
 name = "layer"
 version = "0.1.0"
 source = { virtual = "layer" }
-dependencies = [
-    { name = "aws-lambda-powertools", extra = ["parser"] },
-    { name = "aws-xray-sdk" },
-    { name = "boto3" },
-    { name = "boto3-stubs-lite", extra = ["dynamodb"] },
-    { name = "pydantic" },
-    { name = "pydantic-core" },
-    { name = "types-boto3" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "aws-lambda-powertools", extras = ["parser"], specifier = ">=3.11.0" },
-    { name = "aws-xray-sdk", specifier = ">=2.14.0" },
-    { name = "boto3", specifier = ">=1.38.2" },
-    { name = "boto3-stubs-lite", extras = ["dynamodb"], specifier = ">=1.38.36" },
-    { name = "pydantic", specifier = ">=2.11.4" },
-    { name = "pydantic-core", specifier = ">=2.33.2" },
-    { name = "types-boto3", specifier = ">=1.38.22" },
-]
 
 [[package]]
 name = "mypy"

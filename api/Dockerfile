@@ -29,12 +29,14 @@ RUN --mount=from=uv,source=/uv,target=/bin/uv \
 # By omitting `--no-emit-workspace`, `library` will be copied into the task root. Using a separate
 # `RUN` command ensures that all third-party dependencies are cached separately and remain
 # robust to changes in the workspace.
+# I needed to add --package api to ensure that requurements.txt has any real output. Maybe I'm using
+# workspace incorrectly?
 RUN --mount=from=uv,source=/uv,target=/bin/uv \
     --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=uv.lock,target=uv.lock \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
-    --mount=type=bind,source=layer,target=layer \
-    uv export --frozen --no-dev --no-editable -o requirements.txt --package layer && \
+    --mount=type=bind,source=api,target=api \
+    uv export --frozen --no-dev --no-editable -o requirements.txt --package api && \
     uv pip install -r requirements.txt --target "${LAMBDA_TASK_ROOT}"
 
 FROM public.ecr.aws/lambda/python:3.13
