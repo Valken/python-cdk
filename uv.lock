@@ -5,7 +5,6 @@ requires-python = ">=3.13"
 [manifest]
 members = [
     "api",
-    "layer",
     "python-cdk-sam",
 ]
 
@@ -343,11 +342,6 @@ sdist = { url = "https://files.pythonhosted.org/packages/ad/3e/270b5236035fc7bb2
 wheels = [
     { url = "https://files.pythonhosted.org/packages/44/af/8554b632e2b82f37a7422782aba5db2a1fbff4887faa7ec850818def8407/jsii-1.112.0-py3-none-any.whl", hash = "sha256:6510c223074d9b206fd0570849a791e4d9ecfff7ffe68428de73870cea9f55a1", size = 600681, upload-time = "2025-05-07T14:45:51.136Z" },
 ]
-
-[[package]]
-name = "layer"
-version = "0.1.0"
-source = { virtual = "layer" }
 
 [[package]]
 name = "mypy"

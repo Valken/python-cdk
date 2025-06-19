@@ -56,3 +56,15 @@ command.
  * `cdk docs`        open CDK documentation
 
 Enjoy!
+
+## SAM Local
+
+This should work, but sam doesn't work with docker buildkit, even if you set the environment variable DOCKER_BUILDKIT=1
+
+```bash
+pushd cdk
+cdk synth --no-staging > template.yaml
+sam build -t template.yaml
+sam local invoke <funcName> -t template.yaml
+popd
+```

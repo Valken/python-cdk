@@ -12,3 +12,5 @@ cdk.out
 
 .DS_Store
 .idea/
+
+.aws-sam

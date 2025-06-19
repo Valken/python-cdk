@@ -10,7 +10,7 @@ router = Router()
 ssm_provider = parameters.SSMProvider()
 
 
-@router.get("/hello")
+@router.get("/")
 @tracer.capture_method
 def get_threedos() -> dict[str, Any]:
     something_param: Any = ssm_provider.get("/hello-world/something")

@@ -7,7 +7,7 @@ from api.shared import logger, tracer
 from api.thing_routes import router as thing_router
 
 app = APIGatewayHttpResolver(enable_validation=True)
-app.include_router(thing_router)
+app.include_router(thing_router, prefix="/stuff")
 app.include_router(post_router)
 
 
