@@ -6,6 +6,7 @@ from aws_cdk import (
     aws_lambda as _lambda,
     aws_apigatewayv2 as apigateway,
     aws_apigatewayv2_integrations as integrations,
+    aws_ecr as ecr,
     aws_ssm as ssm,
     aws_iam as iam,
     CfnOutput,
@@ -13,7 +14,6 @@ from aws_cdk import (
     aws_dynamodb as dynamodb,
     CfnParameter,
 )
-from aws_cdk.aws_ecr_assets import Platform
 from aws_cdk.aws_lambda import Tracing
 from constructs import Construct
 
@@ -44,11 +44,17 @@ class ApiStack(Stack):
         hello_world_function = _lambda.Function(
             self,
             "HelloWorldFunction",
-            code=_lambda.Code.from_asset_image(
-                str(root_path),
-                file="api/Dockerfile",
-                platform=Platform.LINUX_AMD64,
-                # cmd=["api.handler.another_handler"],
+            # code=_lambda.Code.from_asset_image(
+            #     str(root_path),
+            #     file="api/Dockerfile",
+            #     platform=Platform.LINUX_AMD64,
+            #     # cmd=["api.handler.another_handler"],
+            # ),
+            code=_lambda.Code.from_ecr_image(
+                repository=ecr.Repository.from_repository_name(
+                    self, "HelloWorldRepo", "ecr-repository"
+                ),
+                tag="latest",
             ),
             handler=_lambda.Handler.FROM_IMAGE,
             runtime=_lambda.Runtime.FROM_IMAGE,
@@ -91,7 +97,7 @@ class ApiStack(Stack):
             if provisioned_concurrency <= 0
             else hello_world_function.current_version.add_alias(
                 "live",
-                provisioned_concurrent_executions=2,
+                provisioned_concurrent_executions=provisioned_concurrency,
             )
         )
 
@@ -133,5 +139,18 @@ class ApiStack(Stack):
             parameter_name="/hello-world/something",
             string_value="something",
         )
+
+        # Some CloudWatch stuff...
+        # logs.CfnQueryDefinition(
+        #     self,
+        #     "LogInsightsQuery",
+        #     name="Hello Lambda Cold Starts",
+        #     log_group_names=[hello_world_function.log_group.log_group_name],
+        #     query_string=(
+        #         'filter @type = "REPORT" and @initDuration > 0\n'
+        #         '| fields @entity.Attributes.Lambda.Function, @initDuration, @duration, @timestamp, @message, @logStream, @log\n'
+        #         '| sort @timestamp desc'
+        #     ),
+        # )
 
         CfnOutput(self, "Url", value=api.url)

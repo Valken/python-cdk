@@ -3,6 +3,7 @@
 from aws_cdk import App
 
 from api_stack import ApiStack
+from ecr_stack import EcrStack
 
 # sys.path.append(str(Path(__file__).resolve().parent.parent))
 
@@ -23,5 +24,7 @@ ApiStack(
     # env=cdk.Environment(account='123456789012', region='us-east-1'),
     # For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html
 )
+
+EcrStack(app, "EcrStack", app_name="ecr-repository")
 
 app.synth()
