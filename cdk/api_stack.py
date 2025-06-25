@@ -8,9 +8,10 @@ from aws_cdk import (
     aws_apigatewayv2_integrations as integrations,
     aws_ssm as ssm,
     aws_iam as iam,
-    CfnOutput as Cfnoutput,
+    CfnOutput,
     Duration,
     aws_dynamodb as dynamodb,
+    CfnParameter,
 )
 from aws_cdk.aws_ecr_assets import Platform
 from aws_cdk.aws_lambda import Tracing
@@ -23,6 +24,15 @@ root_path = Path(__file__).parent.parent
 class ApiStack(Stack):
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
+
+        environment_parameter = CfnParameter(
+            self,
+            "Environment",
+            type="String",
+            description="Deployment environment",
+            default="dev",
+            allowed_values=["dev", "prod"],
+        )
 
         ssm_client = boto3.client("ssm", region_name="eu-west-1")
         response = ssm_client.get_parameter(
@@ -45,13 +55,13 @@ class ApiStack(Stack):
             environment={
                 "TABLE_NAME": table_name,
                 "POWERTOOLS_SERVICE_NAME": "hello-world-api",
+                "ENVIRONMENT": environment_parameter.value_as_string,
             },
             timeout=Duration.seconds(30),
             tracing=Tracing.ACTIVE,
             logging_format=_lambda.LoggingFormat.JSON,
             memory_size=256,  # 1024,
         )
-
         hello_world_function.role.add_to_policy(
             iam.PolicyStatement(
                 actions=["ssm:GetParameter", "ssm:GetParametersByPath"],
@@ -67,6 +77,7 @@ class ApiStack(Stack):
                 resources=["*"],
             )
         )
+
         table = dynamodb.Table.from_table_name(
             self,
             "Table",
@@ -84,7 +95,11 @@ class ApiStack(Stack):
             )
         )
 
-        api = apigateway.HttpApi(self, "Endpoint")
+        api = apigateway.HttpApi(
+            self,
+            "Endpoint",
+            api_name=f"hello-api-{environment_parameter.value_as_string}",
+        )
 
         lambda_integration = integrations.HttpLambdaIntegration(
             "LambdaIntegration",
@@ -100,7 +115,6 @@ class ApiStack(Stack):
             methods=[apigateway.HttpMethod.ANY],
             integration=lambda_integration,
         )
-
         api.add_routes(
             path="/hello",
             methods=[apigateway.HttpMethod.GET],
@@ -121,3 +135,4 @@ class ApiStack(Stack):
         )
 
         Cfnoutput(self, "Url", value=api.url)
+        CfnOutput(self, "Url", value=api.url)
