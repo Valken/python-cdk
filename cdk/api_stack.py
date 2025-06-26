@@ -134,5 +134,4 @@ class ApiStack(Stack):
             string_value="something",
         )
 
-        Cfnoutput(self, "Url", value=api.url)
         CfnOutput(self, "Url", value=api.url)

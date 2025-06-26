@@ -1,0 +1,40 @@
+name: CDK
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install the latest version of uv
+      uses: astral-sh/setup-uv@v6
+      with:
+        version: "latest"
+
+    - name: Install node
+      uses: actions/setup-node@v4
+
+    - name: Install CDK and dev dependencies
+      run: |
+        npm install -g aws-cdk
+        uv sync --all-packages --dev --frozen
+
+    - name: Build docker image
+      run: |
+        docker build --platform linux/amd64 --provenance=false  -f api/Dockerfile .
+
+#    - name: Run tests
+#      run: |
+#        uv run pytest
+
+#    - name: Synth CDK stack
+#      run: |
+#        uv sync --frozen --dev
+#        uv run cdk synth --app "python3 cdk/app.py"

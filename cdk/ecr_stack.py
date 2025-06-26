@@ -1,8 +1,4 @@
-from aws_cdk import (
-    Stack,
-    aws_ecr as ecr,
-CfnOutput
-)
+from aws_cdk import Stack, aws_ecr as ecr, CfnOutput
 from constructs import Construct
 
 
@@ -11,11 +7,7 @@ class EcrStack(Stack):
         super().__init__(scope, id, **kwargs)
 
         ecr_repository = ecr.Repository(
-            self,
-            "AppEcrRepository",
-            repository_name=f"{app_name}"
+            self, "AppEcrRepository", repository_name=f"{app_name}"
         )
 
-        CfnOutput(self,
-                   "EcrRepositoryUri",
-                   value=ecr_repository.repository_uri)
+        CfnOutput(self, "EcrRepositoryUri", value=ecr_repository.repository_uri)
