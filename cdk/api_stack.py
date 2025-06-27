@@ -6,14 +6,16 @@ from aws_cdk import (
     aws_lambda as _lambda,
     aws_apigatewayv2 as apigateway,
     aws_apigatewayv2_integrations as integrations,
-    aws_ecr as ecr,
     aws_ssm as ssm,
     aws_iam as iam,
     CfnOutput,
     Duration,
     aws_dynamodb as dynamodb,
     CfnParameter,
+    CfnCondition,
+    Fn,
 )
+from aws_cdk.aws_ecr_assets import Platform
 from aws_cdk.aws_lambda import Tracing
 from constructs import Construct
 
@@ -34,6 +36,23 @@ class ApiStack(Stack):
             allowed_values=["dev", "prod"],
         )
 
+        deployment_type_parameter = CfnParameter(
+            self,
+            "DeploymentType",
+            type="String",
+            description="Choose deployment type: 'ecr' or 'asset'",
+            default="asset",
+            allowed_values=["ecr", "asset"],
+        )
+
+        use_ecr_condition = CfnCondition(
+            self,
+            "UseEcrCondition",
+            expression=Fn.condition_equals(
+                deployment_type_parameter.value_as_string, "ecr"
+            ),
+        )
+
         ssm_client = boto3.client("ssm", region_name="eu-west-1")
         response = ssm_client.get_parameter(
             Name="/somethingsomething/api/blog-api-dev/blogtable",
@@ -44,18 +63,18 @@ class ApiStack(Stack):
         hello_world_function = _lambda.Function(
             self,
             "HelloWorldFunction",
-            # code=_lambda.Code.from_asset_image(
-            #     str(root_path),
-            #     file="api/Dockerfile",
-            #     platform=Platform.LINUX_AMD64,
-            #     # cmd=["api.handler.another_handler"],
-            # ),
-            code=_lambda.Code.from_ecr_image(
-                repository=ecr.Repository.from_repository_name(
-                    self, "HelloWorldRepo", "ecr-repository"
-                ),
-                tag="latest",
+            code=_lambda.Code.from_asset_image(
+                str(root_path),
+                file="api/Dockerfile",
+                platform=Platform.LINUX_AMD64,
+                # cmd=["api.handler.another_handler"],
             ),
+            # code=_lambda.Code.from_ecr_image(
+            #     repository=ecr.Repository.from_repository_name(
+            #         self, "HelloWorldRepo", "hello-api"
+            #     ),
+            #     tag="373f2ad",
+            # ),
             handler=_lambda.Handler.FROM_IMAGE,
             runtime=_lambda.Runtime.FROM_IMAGE,
             environment={
