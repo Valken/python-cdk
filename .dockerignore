@@ -5,3 +5,10 @@ cdk
 .venv
 .idea
 # Maybe __pycache__ too?
+.gitignore
+.git
+.github
+
+# ignore all Python files except those in the api directory
+#*.py
+#!api/*.py
