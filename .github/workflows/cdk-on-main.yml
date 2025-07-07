@@ -1,5 +1,8 @@
 name: CDK
 
+permissions:
+  write-all
+
 on:
   push:
     branches:
@@ -28,7 +31,12 @@ jobs:
 
     - name: Build docker image
       run: |
-        docker build --platform linux/amd64 --provenance=false  -f api/Dockerfile .
+        docker build --platform linux/amd64 --provenance=false  -f api/Dockerfile . -t ghcr.io/valken/hello-api:latest
+
+    - name: Push docker image
+      run: |
+        echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u valken --password-stdin
+        docker push ghcr.io/valken/hello-api:latest
 
 #    - name: Run tests
 #      run: |
