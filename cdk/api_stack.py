@@ -1,6 +1,5 @@
 from pathlib import Path
 
-import boto3
 from aws_cdk import (
     Stack,
     aws_lambda as _lambda,
@@ -33,13 +32,9 @@ class ApiStack(Stack):
             default="dev",
             allowed_values=["dev", "prod"],
         )
-
-        ssm_client = boto3.client("ssm", region_name="eu-west-1")
-        response = ssm_client.get_parameter(
-            Name="/somethingsomething/api/blog-api-dev/blogtable",
-            WithDecryption=True,  # Set to True if the parameter is encrypted
+        table_name = ssm.StringParameter.value_for_string_parameter(
+            self, "/somethingsomething/api/blog-api-dev/blogtable"
         )
-        table_name = response["Parameter"]["Value"]
 
         hello_world_function = _lambda.Function(
             self,
