@@ -1,0 +1,74 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Least-privilege CDK execution role'
+
+Resources:
+  CDKExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: CDKExecutionRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: cloudformation.amazonaws.com
+            Action: sts:AssumeRole
+          # Add your current IAM entity (user/role) as a principal to allow assumption
+          - Effect: Allow
+            Principal:
+#              AWS: !Sub arn:aws:iam::${AWS::AccountId}:user/${YourIAMUsername}
+              AWS: arn:aws:sts::729800136817:assumed-role/AWSReservedSSO_PowerUserAccess_35a299fb9ac8dc46/neilmackey
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AWSCloudFormationFullAccess
+      Policies:
+        - PolicyName: CDKExecutionPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ecr:CreateRepository
+                  - ecr:DescribeRepositories
+                  - ecr:GetRepositoryPolicy
+                  - ecr:SetRepositoryPolicy
+                  - ecr:PutLifecyclePolicy
+                Resource: !Sub arn:aws:ecr:*:${AWS::AccountId}:repository/hello-api
+              - Effect: Allow
+                Action:
+                  - lambda:CreateFunction
+                  - lambda:GetFunction
+                  - lambda:UpdateFunctionCode
+                  - lambda:UpdateFunctionConfiguration
+                  - lambda:AddPermission
+                Resource: !Sub arn:aws:lambda:*:${AWS::AccountId}:function:*
+              - Effect: Allow
+                Action:
+                  - iam:CreateRole
+                  - iam:GetRole
+                  - iam:PassRole
+                  - iam:AttachRolePolicy
+                  - iam:PutRolePolicy
+                Resource: !Sub arn:aws:iam::${AWS::AccountId}:role/PythonCdkSam*
+              - Effect: Allow
+                Action:
+                  - apigateway:POST
+                  - apigateway:GET
+                  - apigateway:PUT
+                  - apigateway:DELETE
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                  - s3:GetObject
+                Resource: !Sub arn:aws:s3:::cdktoolkit-*/*
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:PutRetentionPolicy
+                Resource: !Sub arn:aws:logs:*:${AWS::AccountId}:log-group:/aws/lambda/*
+
+Outputs:
+  CDKExecutionRoleARN:
+    Description: ARN of the CDK Execution Role
+    Value: !GetAtt CDKExecutionRole.Arn
