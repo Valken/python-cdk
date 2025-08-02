@@ -79,6 +79,13 @@ class ApiStack(Stack):
             table_name=table_name,
         )
         table.grant_read_data(hello_world_function)
+        hello_world_function.add_to_role_policy(
+            iam.PolicyStatement(
+                effect=iam.Effect.ALLOW,
+                actions=["dynamodb:Query"],
+                resources=[table.table_arn, f"{table.table_arn}/index/TopicIndex"],
+            )
+        )
 
         provisioned_concurrency = 0
         hello_world_function_alias = (

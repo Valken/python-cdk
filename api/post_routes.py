@@ -2,6 +2,7 @@ import os
 from datetime import datetime
 from typing import Annotated, List
 
+from aws_lambda_powertools.event_handler.exceptions import NotFoundError
 from aws_lambda_powertools.event_handler.openapi.params import Query
 from aws_lambda_powertools.event_handler.router import Router
 from boto3 import client
@@ -40,6 +41,21 @@ def query_posts_by_date_range(from_date: datetime, to_date: datetime) -> List[di
     return posts
 
 
+@tracer.capture_method
+def query_posts_by_topic(topic: str) -> List[dict]:
+    logger.info(f"Querying posts for topic: {topic}")
+    response = dynamodb.query(
+        TableName=table_name,
+        IndexName="TopicIndex",
+        KeyConditionExpression="PkTopic = :pk",
+        ExpressionAttributeValues={
+            ":pk": {"S": topic},
+        },
+        ScanIndexForward=False,
+    )
+    return [dynamo_to_python(item) for item in response["Items"]]
+
+
 @router.get("/posts")
 @tracer.capture_method
 def get_posts(
@@ -51,3 +67,27 @@ def get_posts(
     queried_posts = query_posts_by_date_range(from_date, to_date)
     logger.info(f"Queried {len(queried_posts)} posts")
     return [Post(**item) for item in queried_posts]
+
+
+@router.get("/topics")
+@tracer.capture_method
+def get_topics() -> List[str]:
+    response = dynamodb.query(
+        TableName=table_name,
+        KeyConditionExpression="Pk = :pk",
+        ExpressionAttributeValues={
+            ":pk": {"S": "Topic"},
+        },
+        ProjectionExpression="Sk",
+    )
+    return [item["Sk"]["S"] for item in response.get("Items", [])]
+
+
+@router.get("/topics/<topic_name>")
+@tracer.capture_method
+def get_topic(topic_name: str) -> List[Post]:
+    logger.info(f"Querying posts for topic: {topic_name}")
+    posts = query_posts_by_topic(topic_name)
+    if not posts:
+        raise NotFoundError()
+    return posts
