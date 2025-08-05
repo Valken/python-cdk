@@ -1,6 +1,6 @@
 import os
 from datetime import datetime
-from typing import Annotated, List
+from typing import Annotated, Any, List
 
 from aws_lambda_powertools.event_handler.exceptions import NotFoundError
 from aws_lambda_powertools.event_handler.openapi.params import Query
@@ -80,7 +80,7 @@ def get_topics() -> List[str]:
         },
         ProjectionExpression="Sk",
     )
-    return [item["Sk"]["S"] for item in response.get("Items", [])]
+    return [item["Sk"]["S"] for item in response["Items"]]
 
 
 @router.get("/topics/<topic_name>")
@@ -91,3 +91,23 @@ def get_topic(topic_name: str) -> List[Post]:
     if not posts:
         raise NotFoundError()
     return posts
+
+
+@router.get("/topics/recent")
+@tracer.capture_method
+def get_recent_topics() -> list[dict[str, Any]]:
+    response = dynamodb.query(
+        TableName=table_name,
+        IndexName="LastUpdatedTopicIndex",
+        KeyConditionExpression="Pk = :pk",
+        ExpressionAttributeValues={
+            ":pk": {"S": "Topic"},
+        },
+        ProjectionExpression="Sk, LastUpdated",
+        Limit=10,
+        ScanIndexForward=False,
+    )
+    return [
+        {"Topic": item["Sk"]["S"], "LastUpdated": item["LastUpdated"]["S"]}
+        for item in response["Items"]
+    ]

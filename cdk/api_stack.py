@@ -83,7 +83,10 @@ class ApiStack(Stack):
             iam.PolicyStatement(
                 effect=iam.Effect.ALLOW,
                 actions=["dynamodb:Query"],
-                resources=[table.table_arn, f"{table.table_arn}/index/TopicIndex"],
+                resources=[
+                    f"{table.table_arn}/index/LastUpdatedTopicIndex",
+                    f"{table.table_arn}/index/TopicIndex",
+                ],
             )
         )
 
