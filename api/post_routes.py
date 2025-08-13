@@ -108,6 +108,6 @@ def get_recent_topics() -> list[dict[str, Any]]:
         ScanIndexForward=False,
     )
     return [
-        {"Topic": item["Sk"]["S"], "LastUpdated": item["LastUpdated"]["S"]}
+        {"topic": item["Sk"]["S"], "lastUpdated": item["LastUpdated"]["S"]}
         for item in response["Items"]
     ]

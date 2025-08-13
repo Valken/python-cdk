@@ -23,3 +23,9 @@ def get_threedos() -> dict[str, Any]:
 def post_pets(model: Model) -> dict[str, Model]:
     logger.info(model)
     return {"message": model}
+
+
+@router.get("/<thing_id>")
+def get_thing(thing_id: str) -> dict[str, str]:
+    logger.info(f"Fetching thing with ID: {thing_id}")
+    return {"thing_id": thing_id, "message": "Thing fetched successfully"}
