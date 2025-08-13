@@ -12,3 +12,5 @@ cdk
 # ignore all Python files except those in the api directory
 #*.py
 #!api/*.py
+
+cdk-execution-role.yaml

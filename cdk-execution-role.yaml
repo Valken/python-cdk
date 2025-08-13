@@ -13,12 +13,6 @@ Resources:
             Principal:
               Service: cloudformation.amazonaws.com
             Action: sts:AssumeRole
-          # Add your current IAM entity (user/role) as a principal to allow assumption
-          - Effect: Allow
-            Principal:
-#              AWS: !Sub arn:aws:iam::${AWS::AccountId}:user/${YourIAMUsername}
-              AWS: arn:aws:sts::729800136817:assumed-role/AWSReservedSSO_PowerUserAccess_35a299fb9ac8dc46/neilmackey
-            Action: sts:AssumeRole
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AWSCloudFormationFullAccess
       Policies:
@@ -50,23 +44,32 @@ Resources:
                   - iam:AttachRolePolicy
                   - iam:PutRolePolicy
                 Resource: !Sub arn:aws:iam::${AWS::AccountId}:role/PythonCdkSam*
-              - Effect: Allow
-                Action:
-                  - apigateway:POST
-                  - apigateway:GET
-                  - apigateway:PUT
-                  - apigateway:DELETE
-                Resource: "*"
+#              - Effect: Allow
+#                Action:
+#                  - apigateway:POST
+#                  - apigateway:GET
+#                  - apigateway:PUT
+#                  - apigateway:DELETE
+#                Resource: "*"
               - Effect: Allow
                 Action:
                   - s3:PutObject
                   - s3:GetObject
-                Resource: !Sub arn:aws:s3:::cdktoolkit-*/*
+                Resource: arn:aws:s3:::cdktoolkit-*/*
               - Effect: Allow
                 Action:
                   - logs:CreateLogGroup
                   - logs:PutRetentionPolicy
                 Resource: !Sub arn:aws:logs:*:${AWS::AccountId}:log-group:/aws/lambda/*
+              - Effect: Allow
+                Action:
+                  - ssm:GetParameter
+                  - ssm:GetParameters
+                  - ssm:GetParameterHistory
+                Resource:
+                  - !Sub arn:aws:ssm:eu-west-1:${AWS::AccountId}:parameter/somethingsomething/api/blog-api*
+                  - !Sub arn:aws:ssm:eu-west-1:${AWS::AccountId}:parameter/cdk-bootstrap/*/version
+
 
 Outputs:
   CDKExecutionRoleARN:

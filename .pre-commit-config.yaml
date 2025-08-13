@@ -7,6 +7,7 @@ repos:
     -   id: trailing-whitespace
     -   id: end-of-file-fixer
     -   id: check-yaml
+        exclude: cdk-execution-role.yaml
     -   id: check-added-large-files
     -   id: requirements-txt-fixer
 - repo: https://github.com/astral-sh/ruff-pre-commit
@@ -25,3 +26,8 @@ repos:
     rev: 25.1.0
     hooks:
     -   id: black
+-   repo: https://github.com/aws-cloudformation/cfn-lint
+    rev: v0.85.0
+    hooks:
+    -   id: cfn-lint
+        files: cdk-execution-role.yaml
