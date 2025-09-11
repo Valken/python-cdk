@@ -7,6 +7,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -29,14 +30,26 @@ jobs:
         npm install -g aws-cdk
         uv sync --all-packages --dev --frozen
 
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@main # Or a specific version
+      with:
+        role-to-assume: ${{ secrets.AWS_ROLE }}
+        aws-region: eu-west-1
+
+    - name: CDK Synth
+      run: |
+        uv sync --frozen --all-packages --dev
+        cd cdk
+        uv run cdk synth
+
     - name: Build docker image
       run: |
         docker build --platform linux/amd64 --provenance=false  -f api/Dockerfile . -t ghcr.io/valken/hello-api:latest
 
-    - name: Push docker image
-      run: |
-        echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u valken --password-stdin
-        docker push ghcr.io/valken/hello-api:latest
+#    - name: Push docker image
+#      run: |
+#        echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u valken --password-stdin
+#        docker push ghcr.io/valken/hello-api:latest
 
 #    - name: Run tests
 #      run: |
