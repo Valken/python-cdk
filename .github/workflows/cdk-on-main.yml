@@ -42,6 +42,10 @@ jobs:
         cd cdk
         uv run cdk synth
 
+    - name: Run tests
+      run: |
+        uv run pytest
+
     - name: Build docker image
       run: |
         docker build --platform linux/amd64 --provenance=false  -f api/Dockerfile . -t ghcr.io/valken/hello-api:latest
