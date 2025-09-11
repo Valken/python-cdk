@@ -17,8 +17,22 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Setup CDK Python Environment
-      uses: ./.github/actions/setup-env
+#    - name: Setup CDK Python Environment
+#      uses: ./.github/actions/setup-env
+
+    - name: Install the latest version of uv
+      uses: astral-sh/setup-uv@v6
+      with:
+        version: "latest"
+
+    - name: Install node
+      uses: actions/setup-node@v4
+
+    - name: Install CDK and dev dependencies
+      shell: bash
+      run: |
+        npm install -g aws-cdk
+#        uv sync --all-packages --dev --frozen
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@main # Or a specific version
