@@ -54,12 +54,3 @@ jobs:
       run: |
         echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u valken --password-stdin
         docker push ghcr.io/valken/hello-api:latest
-
-#    - name: Run tests
-#      run: |
-#        uv run pytest
-
-#    - name: Synth CDK stack
-#      run: |
-#        uv sync --frozen --dev
-#        uv run cdk synth --app "python3 cdk/app.py"
