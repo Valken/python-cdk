@@ -2,6 +2,8 @@
 
 Simple API project for figuring out things like: AWS CDK, uv, Docker-based lambda functions, Lambda Powertools for Python, Git Actions and so on.
 
+[![CDK](https://github.com/Valken/python-cdk/actions/workflows/cdk-on-main.yml/badge.svg?branch=main)](https://github.com/Valken/python-cdk/actions/workflows/cdk-on-main.yml)
+
 ## Prerequisites
 
 - [AWS CDK](https://docs.aws.amazon.com/cdk/v2/guide/prerequisites.html)
