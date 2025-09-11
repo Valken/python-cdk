@@ -1,0 +1,18 @@
+name: Setup CDK Python Environment
+description: Installs uv, Node.js, AWS CDK, and Python dev dependencies
+runs:
+  using: composite
+  steps:
+    - name: Install the latest version of uv
+      uses: astral-sh/setup-uv@v6
+      with:
+        version: "latest"
+
+    - name: Install node
+      uses: actions/setup-node@v4
+
+    - name: Install CDK and dev dependencies
+      shell: bash
+      run: |
+        npm install -g aws-cdk
+        uv sync --all-packages --dev --frozen
