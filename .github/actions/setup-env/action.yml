@@ -15,4 +15,3 @@ runs:
       shell: bash
       run: |
         npm install -g aws-cdk
-        uv sync --all-packages --dev --frozen
