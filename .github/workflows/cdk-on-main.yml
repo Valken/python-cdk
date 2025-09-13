@@ -50,6 +50,11 @@ jobs:
       run: |
         uv run pytest
 
+    - name: CDK Deploy
+      run: |
+        cd cdk
+        uv run cdk deploy --all --require-approval never
+
     - name: Build docker image
       run: |
         docker build --platform linux/amd64 --provenance=false  -f api/Dockerfile . -t ghcr.io/valken/hello-api:latest
