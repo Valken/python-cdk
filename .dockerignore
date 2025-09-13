@@ -4,7 +4,7 @@ cdk
 .DS_Store
 .venv
 .idea
-# Maybe __pycache__ too?
+**/__pycache__
 .gitignore
 .git
 .github
