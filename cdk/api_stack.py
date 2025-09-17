@@ -7,7 +7,6 @@ from aws_cdk import (
     aws_apigatewayv2_integrations as integrations,
     aws_ssm as ssm,
     aws_iam as iam,
-    CfnOutput,
     Duration,
     aws_dynamodb as dynamodb,
     CfnParameter,
@@ -139,4 +138,4 @@ class ApiStack(Stack):
             string_value="something",
         )
 
-        CfnOutput(self, "Url", value=api.url)
+        # CfnOutput(self, "Url", value=api.url)
