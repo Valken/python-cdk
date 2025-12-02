@@ -5,7 +5,7 @@ requires-python = ">=3.13"
 [manifest]
 members = [
     "api",
-    "python-cdk-sam",
+    "hello-api",
 ]
 
 [[package]]
@@ -290,6 +290,33 @@ wheels = [
 ]
 
 [[package]]
+name = "hello-api"
+version = "0.1.0"
+source = { virtual = "." }
+
+[package.dev-dependencies]
+dev = [
+    { name = "aws-cdk-aws-lambda-python-alpha" },
+    { name = "aws-cdk-lib" },
+    { name = "aws-mfa" },
+    { name = "mypy" },
+    { name = "pre-commit" },
+    { name = "pytest" },
+]
+
+[package.metadata]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "aws-cdk-aws-lambda-python-alpha", specifier = ">=2.191.0a0" },
+    { name = "aws-cdk-lib", specifier = ">=2.191.0" },
+    { name = "aws-mfa", specifier = ">=0.0.12" },
+    { name = "mypy", specifier = ">=1.16.0" },
+    { name = "pre-commit", specifier = ">=4.2.0" },
+    { name = "pytest", specifier = ">=8.3.5" },
+]
+
+[[package]]
 name = "identify"
 version = "2.6.12"
 source = { registry = "https://pypi.org/simple" }
@@ -517,33 +544,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/fb/aa/405082ce2749be5398045152251ac69c0f3578c7077efc53431303af97ce/pytest-8.4.0.tar.gz", hash = "sha256:14d920b48472ea0dbf68e45b96cd1ffda4705f33307dcc86c676c1b5104838a6", size = 1515232, upload-time = "2025-06-02T17:36:30.03Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/2f/de/afa024cbe022b1b318a3d224125aa24939e99b4ff6f22e0ba639a2eaee47/pytest-8.4.0-py3-none-any.whl", hash = "sha256:f40f825768ad76c0977cbacdf1fd37c6f7a468e460ea6a0636078f8972d4517e", size = 363797, upload-time = "2025-06-02T17:36:27.859Z" },
-]
-
-[[package]]
-name = "python-cdk-sam"
-version = "0.1.0"
-source = { virtual = "." }
-
-[package.dev-dependencies]
-dev = [
-    { name = "aws-cdk-aws-lambda-python-alpha" },
-    { name = "aws-cdk-lib" },
-    { name = "aws-mfa" },
-    { name = "mypy" },
-    { name = "pre-commit" },
-    { name = "pytest" },
-]
-
-[package.metadata]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "aws-cdk-aws-lambda-python-alpha", specifier = ">=2.191.0a0" },
-    { name = "aws-cdk-lib", specifier = ">=2.191.0" },
-    { name = "aws-mfa", specifier = ">=0.0.12" },
-    { name = "mypy", specifier = ">=1.16.0" },
-    { name = "pre-commit", specifier = ">=4.2.0" },
-    { name = "pytest", specifier = ">=8.3.5" },
 ]
 
 [[package]]
