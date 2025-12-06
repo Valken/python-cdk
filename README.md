@@ -1,6 +1,6 @@
 # Hello API
 
-Simple API project for figuring out things like: AWS CDK, uv, Docker-based lambda functions, Lambda Powertools for Python, Git Actions and so on.
+Simple API project for figuring out things like: AWS CDK, uv, Docker-based lambda functions, FastAPI with Mangum for AWS Lambda, Git Actions and so on.
 
 [![CDK](https://github.com/Valken/python-cdk/actions/workflows/cdk-on-main.yml/badge.svg?branch=main)](https://github.com/Valken/python-cdk/actions/workflows/cdk-on-main.yml)
 
@@ -16,6 +16,24 @@ Simple API project for figuring out things like: AWS CDK, uv, Docker-based lambd
 cdk bootstrap aws://$ACCOUNTID/$REGION
 uv sync --frozen --all-packages --dev
 ```
+
+## Local Development
+
+Run the API locally using uvicorn:
+
+```bash
+uv run python run_local.py
+```
+
+The API will be available at:
+- **API**: http://localhost:8000
+- **Swagger UI (Interactive docs)**: http://localhost:8000/docs
+- **ReDoc (Alternative docs)**: http://localhost:8000/redoc
+
+**Note**:
+- Lambda Powertools tracing is disabled in local mode (uses mock tracer)
+- SSM parameter lookups will return mock values unless you have AWS credentials configured
+- DynamoDB operations require valid AWS credentials and TABLE_NAME environment variable
 
 ## Deploy
 

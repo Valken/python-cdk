@@ -1,12 +1,10 @@
 import os
 from datetime import datetime
-from typing import Annotated, Any, List
+from typing import Any, List
 
-from aws_lambda_powertools.event_handler.exceptions import NotFoundError
-from aws_lambda_powertools.event_handler.openapi.params import Query
-from aws_lambda_powertools.event_handler.router import Router
 from boto3 import client
 from dateutil.relativedelta import relativedelta
+from fastapi import APIRouter, HTTPException, Query
 from mypy_boto3_dynamodb.client import DynamoDBClient
 
 from api.partition_generators import get_year_month_range
@@ -20,15 +18,16 @@ def get_client() -> DynamoDBClient:
 
 dynamodb = get_client()  # client("dynamodb", region_name="eu-west-1")
 table_name = os.environ.get("TABLE_NAME")
-router = Router()
+router = APIRouter()
 
 
 @tracer.capture_method
 def query_posts_by_date_range(from_date: datetime, to_date: datetime) -> List[dict]:
+    """Query posts within a date range."""
     posts = []
     for year_month in get_year_month_range(from_date, to_date):
         partition_key = f"Post#{year_month}"
-        logger.info(f"Querying posts for partition key: {partition_key}")
+        logger.info("Querying posts", extra={"partition_key": partition_key})
         response = dynamodb.query(
             TableName=table_name,
             KeyConditionExpression="Pk = :pk",
@@ -43,7 +42,8 @@ def query_posts_by_date_range(from_date: datetime, to_date: datetime) -> List[di
 
 @tracer.capture_method
 def query_posts_by_topic(topic: str) -> List[dict]:
-    logger.info(f"Querying posts for topic: {topic}")
+    """Query posts by topic using GSI."""
+    logger.info("Querying posts by topic", extra={"topic": topic})
     response = dynamodb.query(
         TableName=table_name,
         IndexName="TopicIndex",
@@ -59,19 +59,22 @@ def query_posts_by_topic(topic: str) -> List[dict]:
 @router.get("/posts")
 @tracer.capture_method
 def get_posts(
-    # I can't seem to get using a model for query parameters to work like you can in FastAPI?
-    from_date: Annotated[datetime, Query()] = datetime.now(),
-    to_date: Annotated[datetime, Query()] = datetime.now() - relativedelta(months=6),
+    from_date: datetime = Query(default_factory=datetime.now),
+    to_date: datetime = Query(
+        default_factory=lambda: datetime.now() - relativedelta(months=6)
+    ),
 ) -> List[Post]:
-    logger.info(f"Querying posts from {from_date} to {to_date}")
+    """Get posts within a date range."""
+    logger.info("Querying posts", extra={"from_date": from_date, "to_date": to_date})
     queried_posts = query_posts_by_date_range(from_date, to_date)
-    logger.info(f"Queried {len(queried_posts)} posts")
+    logger.info("Queried posts", extra={"count": len(queried_posts)})
     return [Post(**item) for item in queried_posts]
 
 
 @router.get("/topics")
 @tracer.capture_method
 def get_topics() -> List[str]:
+    """Get all available topics."""
     response = dynamodb.query(
         TableName=table_name,
         KeyConditionExpression="Pk = :pk",
@@ -83,19 +86,21 @@ def get_topics() -> List[str]:
     return [item["Sk"]["S"] for item in response["Items"]]
 
 
-@router.get("/topics/<topic_name>")
+@router.get("/topics/{topic_name}")
 @tracer.capture_method
 def get_topic(topic_name: str) -> List[Post]:
-    logger.info(f"Querying posts for topic: {topic_name}")
+    """Get posts for a specific topic."""
+    logger.info("Querying posts for topic", extra={"topic": topic_name})
     posts = query_posts_by_topic(topic_name)
     if not posts:
-        raise NotFoundError()
-    return posts
+        raise HTTPException(status_code=404, detail=f"Topic '{topic_name}' not found")
+    return [Post(**post) for post in posts]
 
 
 @router.get("/topics/recent")
 @tracer.capture_method
 def get_recent_topics() -> list[dict[str, Any]]:
+    """Get recently updated topics."""
     response = dynamodb.query(
         TableName=table_name,
         IndexName="LastUpdatedTopicIndex",

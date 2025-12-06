@@ -1,6 +1,6 @@
 # GitHub Copilot Custom Resources
 
-This directory contains custom GitHub Copilot agents, instructions, and prompts tailored for AWS serverless development with CDK and Lambda Powertools.
+This directory contains custom GitHub Copilot agents, instructions, and prompts tailored for AWS serverless development with CDK and FastAPI.
 
 ## 📁 Directory Structure
 
@@ -38,24 +38,24 @@ Expert agent for AWS Cloud Development Kit (CDK) infrastructure development. Spe
 - "What's the best way to structure my CDK stacks?"
 - "How do I set up X-Ray tracing for my Lambda?"
 
-### AWS Lambda Powertools Expert
-**File**: `agents/aws-lambda-powertools-expert.agent.md`
+### FastAPI Expert
+**File**: `agents/aws-lambda-powertools-expert.agent.md` *(Note: This agent still uses the old filename but now focuses on FastAPI)*
 
-Expert agent for AWS Lambda Powertools API development. Specializes in:
-- **Event Handler**: APIGatewayHttpResolver, Router pattern, route decorators
+Expert agent for FastAPI API development on AWS Lambda. Specializes in:
+- **FastAPI with Mangum**: API development with Lambda adapter
 - **Validation**: Pydantic integration, request/response models
-- **Observability**: Logger, Tracer (X-Ray), Metrics, correlation IDs
 - **Route Organization**: RESTful API design, parameter handling
-- **Error Handling**: Built-in exceptions, custom responses
+- **Error Handling**: HTTP exceptions, custom responses
 - **Testing**: Unit test patterns for route handlers
+- **AWS Integration**: DynamoDB, SSM Parameter Store, CloudWatch
 
 **Usage**: `@aws-lambda-powertools-expert <your question>`
 
 **Example Questions**:
 - "How do I add query parameters with validation to my GET endpoint?"
 - "What's the best way to organize my API routes?"
-- "How do I implement structured logging in my handlers?"
 - "How do I use Pydantic discriminated unions for polymorphic data?"
+- "How do I integrate FastAPI with DynamoDB?"
 
 ## 📋 Instructions
 
@@ -81,17 +81,17 @@ Comprehensive best practices for CDK development including:
 - Environment management
 - Cost optimization strategies
 
-### AWS Lambda Powertools Python Best Practices
-**File**: `instructions/aws-lambda-powertools-python.instructions.md`
+### FastAPI Python Best Practices
+**File**: `instructions/aws-lambda-powertools-python.instructions.md` *(Note: This file still uses the old filename but now covers FastAPI)*
 
-Best practices for Lambda Powertools development including:
-- Router pattern implementation
-- Path and query parameter handling
+Best practices for FastAPI development on AWS Lambda including:
+- FastAPI router pattern implementation
+- Path and query parameter handling with FastAPI syntax
 - Request body validation with Pydantic
-- Structured logging and tracing
-- Error handling patterns
-- Testing strategies
-- Key differences from FastAPI
+- Error handling with HTTPException
+- Testing strategies with FastAPI TestClient
+- AWS service integration (DynamoDB, SSM)
+- Mangum adapter configuration
 
 ## 🎯 Prompts
 
@@ -205,17 +205,17 @@ email address in my Pydantic model?
 ┌─────────────────────────────────────────────────────────────┐
 │              Lambda Function (Docker-based)                 │
 │  ┌───────────────────────────────────────────────────────┐  │
-│  │  handler.py - APIGatewayHttpResolver                  │  │
+│  │  handler.py - FastAPI with Mangum                     │  │
 │  │    ├─ include_router(thing_router, prefix="/stuff")  │  │
 │  │    └─ include_router(post_router)                    │  │
 │  └────────────────────────────────────────────────��──────┘  │
 │                                                              │
 │  ┌────────────────────┐      ┌─────────────────────────┐   │
 │  │  thing_routes.py   │      │   post_routes.py        │   │
-│  │  - Router()        │      │   - Router()            │   │
+│  │  - APIRouter()     │      │   - APIRouter()         │   │
 │  │  - GET /           │      │   - GET /posts          │   │
 │  │  - POST /pets      │      │   - GET /posts/{id}     │   │
-│  │  - GET /<thing_id> │      │   - POST /posts         │   │
+│  │  - GET /{thing_id} │      │   - POST /posts         │   │
 │  └────────────────────┘      └─────────────────────────┘   │
 │                                                              │
 │  ┌───────────────────────────────────────────────────────┐  │
