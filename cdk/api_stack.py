@@ -13,6 +13,7 @@ from aws_cdk import (
 )
 from aws_cdk.aws_ecr_assets import Platform
 from aws_cdk.aws_lambda import Tracing
+from aws_cdk.aws_lambda_python_alpha import PythonFunction
 from constructs import Construct
 
 
@@ -136,6 +137,36 @@ class ApiStack(Stack):
             "SomthingElse",
             parameter_name="/hello-world/something",
             string_value="something",
+        )
+
+        # Create a Python Lambda function from handlers/hello_world.py
+        nothing_function = PythonFunction(
+            self,
+            "NothingFunction",
+            entry=str(root_path / "handlers"),
+            runtime=_lambda.Runtime.PYTHON_3_13,
+            index="hello_world.py",
+            handler="lambda_handler",
+            timeout=Duration.seconds(30),
+            tracing=Tracing.ACTIVE,
+            logging_format=_lambda.LoggingFormat.JSON,
+            memory_size=256,
+            snap_start=_lambda.SnapStartConf.ON_PUBLISHED_VERSIONS,
+        )
+
+        # Publish a version and create an alias for SnapStart to work
+        nothing_function_version = nothing_function.current_version
+        nothing_function_alias = nothing_function_version.add_alias("live")
+
+        nothing_integration = integrations.HttpLambdaIntegration(
+            "NothingIntegration",
+            handler=nothing_function_alias,
+        )
+
+        api.add_routes(
+            path="/nothing",
+            methods=[apigateway.HttpMethod.GET],
+            integration=nothing_integration,
         )
 
         # CfnOutput(self, "Url", value=api.url)
